@@ -7,7 +7,7 @@ https://www.fossgis-konferenz.de/2021/
 ![](img/fossgis21-logo.png ) ![](img/postgresql_postgis.png)
 
 
--> hier geht es zum Workshop https://github.com/astroidex/fossgis-2021-workshop-postgresql-postgis-fuer-einsteiger-aemde/blob/master/fossgis-2021-workshop-postgresql-postgis-fuer-einsteiger-aemde.md
+-> hier geht es zum Workshop https://github.com/astroidex/fossgis-2021-workshop-postgresql-postgis-fuer-einsteiger-aemde/blob/main/fossgis-2021-workshop-postgresql-postgis-fuer-einsteiger-aemde.md
 
 ## Astrid Emde
 
