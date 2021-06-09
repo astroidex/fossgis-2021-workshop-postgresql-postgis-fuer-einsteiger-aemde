@@ -1,6 +1,6 @@
 # Workshop PostgreSQL/PostGIS für Einsteiger
 
-[FOSSGIS 2021 Workshop in Rapperswil Juni 2021](https://www.fossgis-konferenz.de/2021/)
+[FOSSGIS 2021 Rapperswil Online Workshop 9. Juni 2021](https://www.fossgis-konferenz.de/2021/)
 
 ![](img/fossgis21-logo.png ) ![](img/postgresql_postgis.png)
 
@@ -86,6 +86,7 @@ SELECT version(), postgis_version(), postgis_full_version();
 * PostGIS in Action (August 2015, 2. Auflage) Regine Obe, Leo Hsu ISBN 9781617291395
 * Paul Ramsey PostGIS Day 20019 - Everything about PostGIS https://www.youtube.com/watch?v=g4DgAVCmiDE
 * Paul Ramsey Blog Clever Elephant http://blog.cleverelephant.ca/
++ MapScaping Podcast Paul Ramsey Spatial SQL - GIS without the GIS https://mapscaping.com/blogs/the-mapscaping-podcast/spatial-sql-gis-without-the-gis
 * Clever Elephant ;) https://www.youtube.com/watch?v=Gw_Q1JClH58
 * Postgres OnLine Journal Regine Obe, Leo Hsu http://www.postgresonline.com/
 * Modern SQL Blog Markus Winand https://modern-sql.com/slides https://use-the-index-luke.com/
@@ -302,7 +303,7 @@ CREATE TABLE cities(
 ```sql
 INSERT INTO cities(
             name, geom, country)
-    VALUES ('Rapperswil',ST_SetSrid(ST_MakePoint(7.410540, 47.063839),4326),'Switzerland');
+    VALUES ('Rapperswil',ST_SetSrid(ST_MakePoint(8.8245459 , 47.2269198),4326),'Switzerland');
 ```
 
 ```sql
@@ -383,6 +384,23 @@ Der Import erfolgt über die folgenden Schritte:
 * Schauen Sie sich die Metadaten-Sicht **_geometry_columns_** an
 
 
+
+## QGIS: Erstellen von Tabellen via QGIS
+
+Neue Tabellen können ganz einfach auch in QGIS erstellt werden. Dies erfolgt über die DB-Verwaltung unter dem Menüpunkt **_Tabelle -> Tabelle erzeugen_**.
+
+
+
+### Übung 7: Erstellen der Tabelle standorte via QGIS
+
+* Erstellen Sie in der Datenbank fossgis via QGIS eine einfache Tabelle **_standorte_** für die Austragungsort der FOSSGIS. Die Tabelle benötigt eine eindeutige ID, eine Spalte für den Ort, das Land und das Jahr und eine Geometriespate (POINT, SRID 4326). Erzeugen Sie direkt bei der Erstellung der Tabelle einen räumlichen Index.
+* Erfassen Sie einen Punkt für die FOSSGIS 2021 in Rapperswil.
+* Schauen Sie sich die Tabelle anschließend in pgAdmin an.
+
+
+![](img/qgis_create_table.png)
+
+
 ## PostGIS-Funktionen in Aktion
 
 * PostGIS Dokumentation http://postgis.net/docs/
@@ -425,7 +443,7 @@ WHERE name = 'United Kingdom';
 Ausgabe von Informationen über Ihre Daten wie z.B. Distanz, Fläche, Länge, Mittelpunkt.
 
 
-#### Übung 7: Berechnen Sie die Fläche für jedes Land
+#### Übung 8: Berechnen Sie die Fläche für jedes Land
 
 * http://postgis.net/docs/ST_Area.html
 * Achtung: Beachten Sie, dass zur Berechnung der Fläche die Einheit der verwendeten Projektion genutzt wird (Bei den Natural Earth II Daten ist dies EPSG 4326 also Grad) Verwenden Sie daher für die Berechnung den Spheroid, um sinnvolle Ergebnisse zu erhalten.
@@ -449,7 +467,7 @@ SELECT gid, name, st_Area(geom, true) as flaeche
   ORDER BY flaeche DESC;
 ```
 
-#### Übung 8: Erzeugen Sie eine Sicht, die den Mittelpunkt jedes Landes ausgibt
+#### Übung 9: Erzeugen Sie eine Sicht, die den Mittelpunkt jedes Landes ausgibt
 
 * Erzeugen Sie eine Sicht, die den Mittelpunkt jedes Landes ausgibt
 * Laden Sie die Daten in QGIS
@@ -478,7 +496,7 @@ SELECT gid, name, st_pointonsurface(geom)::geometry(point,4326) as geom
   FROM public.ne_10m_admin_0_countries;
 ```
 
-#### Übung 9: Distanzberechnung
+#### Übung 10: Distanzberechnung
 
 * Gehen Sie zurück zur Tabelle **_cities_** aus Übung 4. Berechnen Sie die Entfernung von Ihrem Wohnort nach Rapperswil.
 * Nutzen Sie dabei den Spheroid für die Berechnung (Nutzung des Typs **_geography_**)
@@ -511,15 +529,6 @@ CREATE INDEX gist_cities_geom
  USING GIST (geom);
 ```
 
-* Sie können auch einen funktionalen Index erzeugen z.B. mit ST_Transform
-
-ST_Transform transformiert die Daten in eine andere Projektion.
-
-```sql
-CREATE INDEX gist_cities_geom_25832
- ON cities 
- USING GIST (ST_Transform(geom,25832));
-```
 
 ### Geometrieprozessierung
 
@@ -527,7 +536,7 @@ CREATE INDEX gist_cities_geom_25832
 * http://postgis.net/docs/reference.html#Geometry_Processing
 
 
-#### Übung 10: Puffern Sie die Tabelle populated places mit 10 km
+#### Übung 11: Puffern Sie die Tabelle populated places mit 10 km
 
 * Puffern Sie die Tabelle **_ne_10m_populated_places_** mit 10 km
 * http://postgis.net/docs/ST_Buffer.html
@@ -575,7 +584,7 @@ SELECT a.*
   AND a.gid != b.gid
 ```
 
-#### Übung 11: ST_UNION - Vereinigen Sie alle Bundesländer von Deutschland zu einer Fläche 
+#### Übung 12: ST_UNION - Vereinigen Sie alle Bundesländer von Deutschland zu einer Fläche 
 
 * Erzeugen Sie eine Sicht **_qry_brd_union_**
 * Nutzen Sie ST_UNION http://postgis.net/docs/ST_Union.html
@@ -593,7 +602,7 @@ SELECT ST_UNION(geom)
 
 Version 2: Ausgabe der Geometrie als Text
 ```sql
-SELECT 1 as gid, 
+SELECT ROW_NUMBER() OVER() as gid, 
   admin, 
   st_AsText(ST_UNION(geom))
   FROM public.ne_10m_admin_1_states_provinces 
@@ -606,7 +615,7 @@ Version 3: Typcast, sinnvolle Benennung der Geometriespalte und zusätzliche Aus
 CREATE VIEW qry_brd_union AS
 SELECT 1 as gid, 
   admin, 
-  ST_UNION(geom)::geometry(multipolygon,4326) as geom
+  ST_Multi(ST_UNION(geom))::geometry(multipolygon,4326) as geom
   FROM public.ne_10m_admin_1_states_provinces 
   WHERE admin='Germany'
   GROUP BY admin ;
@@ -647,8 +656,6 @@ CREATE TABLE provinces_subdivided AS
 ALTER TABLE provinces_subdivided ADD COLUMN gid serial PRIMARY KEY;
 ```
 
-![](img/qgis_qry_provinces_subdivided_max_vertices.png)
-
 
 ```sql
 CREATE INDEX provinces_subdivided_geom_gist
@@ -659,7 +666,7 @@ CREATE INDEX provinces_subdivided_geom_gist
 VACUUM ANALYZE provinces_subdivided;
 ```
 
-#### Übung 12: ST_Subdivide
+#### Übung 13: ST_Subdivide
 
 * Manchmal macht es Sinn, große Geometrien für Berechnungen in kleinere Flächen auszuteilen
 * Diese Übung soll dies mit Hilfe einer Funktion veranschaulichen
@@ -720,7 +727,7 @@ PostgreSQL unterstützt Rollen (Benutzer mit Login und Rollen ohne Login). Diese
 * Siehe GRANT https://www.postgresql.org/docs/current/static/sql-grant.html
 
 
-### Übung 13: Rollen erzeugen und Rechte zuweisen
+### Übung 14: Rollen erzeugen und Rechte zuweisen
 
 1. Legen Sie die Rollen **workshop_read** und **workshop_writer** an
 2. Legen Sie die Login-Rolle **robert** mit Passwort an und fügen Sie diese zur Gruppe **workshop_reader** hinzu
@@ -752,5 +759,3 @@ SELECT * from cities;
 UPDATE cities SET name = 'TEST' WHERE name = 'Bonn';
 SELECT * from cities where name = 'TEST';
 ```
-
-
